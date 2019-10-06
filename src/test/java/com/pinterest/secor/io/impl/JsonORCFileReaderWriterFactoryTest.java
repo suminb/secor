@@ -79,6 +79,27 @@ public class JsonORCFileReaderWriterFactoryTest {
         assertArrayEquals(written1.getValue(), read1.getValue());
     }
 
+    /**
+     * Inserting {@code map<string, string>} type into @{code string} field throws
+     * {@code UnsupportedOperationException}
+     */
+    @Test(expected = UnsupportedOperationException.class)
+    public void testMapOfStringToString2() throws Exception {
+        PropertiesConfiguration properties = new PropertiesConfiguration();
+        properties.setProperty("secor.orc.schema.provider", DEFAULT_ORC_SCHEMA_PROVIDER);
+        properties.setProperty("secor.orc.message.schema.test-topic-map1", "struct<mappings:map<string\\,string>>");
+
+        SecorConfig config = new SecorConfig(properties);
+        JsonORCFileReaderWriterFactory factory = new JsonORCFileReaderWriterFactory(config);
+
+        LogFilePath tempLogFilePath = getTempLogFilePath("test-topic-map1");
+
+        FileWriter fileWriter = factory.BuildFileWriter(tempLogFilePath, codec);
+        KeyValue written1 = new KeyValue(10001, "{\"mappings\":{\"key1\":{\"key2\":\"value2\"}}}".getBytes());
+        fileWriter.write(written1);
+        fileWriter.close();
+    }
+
     @Test
     public void testMapOfStringToInteger() throws Exception {
         PropertiesConfiguration properties = new PropertiesConfiguration();
