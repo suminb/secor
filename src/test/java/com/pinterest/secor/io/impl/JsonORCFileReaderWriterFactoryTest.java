@@ -270,4 +270,27 @@ public class JsonORCFileReaderWriterFactoryTest {
         fileWriter.write(written1);
         fileWriter.close();
     }
+
+    @Test
+    public void testUnionWithWrongTypes() throws Exception {
+        PropertiesConfiguration properties = new PropertiesConfiguration();
+        properties.setProperty("secor.orc.schema.provider", DEFAULT_ORC_SCHEMA_PROVIDER);
+        properties.setProperty("secor.orc.message.schema.wrong-types", "struct<value:uniontype<int\\,string>>");
+
+        SecorConfig config = new SecorConfig(properties);
+        JsonORCFileReaderWriterFactory factory = new JsonORCFileReaderWriterFactory(config);
+        LogFilePath tempLogFilePath = getTempLogFilePath("wrong-types");
+
+        FileWriter fileWriter = factory.BuildFileWriter(tempLogFilePath, codec);
+        // FIXME: 12.34 must be rejected
+        KeyValue written1 = new KeyValue(90001, "{\"value\":12.34}".getBytes());
+        fileWriter.write(written1);
+        fileWriter.close();
+
+        FileReader fileReader = factory.BuildFileReader(tempLogFilePath, codec);
+        KeyValue read1 = fileReader.next();
+        fileReader.close();
+
+        // assertArrayEquals(written1.getValue(), read1.getValue());
+    }
 }
