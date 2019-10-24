@@ -215,4 +215,13 @@ public class JsonORCFileReaderWriterFactoryTest {
             "{\"v1\":{\"v2\":null,\"v3\":1048576}}"
         );
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testUnionTypeWithPreoccupiedJsonType() throws Exception {
+        runCommonTest(
+            "struct<value:uniontype<int\\,bigint>>",
+            "union-type-preoccupied-json-type",
+            "{\"value\":1234}"
+        );
+    }
 }

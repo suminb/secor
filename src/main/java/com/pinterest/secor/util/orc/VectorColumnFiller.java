@@ -272,6 +272,10 @@ public class VectorColumnFiller {
                 JsonType jsonType = getJsonType(childType.getCategory());
                 JsonConverter converter = createConverter(childType);
                 // FIXME: Handle cases where childConverters is pre-occupied with the same mask
+                if (childConverters.containsKey(jsonType)) {
+                    throw new IllegalArgumentException(String.format("JSON type %s is already occupied with %s",
+                            jsonType, childConverters.get(jsonType)));
+                }
                 childConverters.put(jsonType, new ConverterInfo(index++, converter));
             }
         }
